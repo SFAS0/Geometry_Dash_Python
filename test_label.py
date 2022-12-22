@@ -78,31 +78,31 @@ def draw_levels(screen):
     b = random.randint(60, 255)
     font = pygame.font.Font(None, 50)
     text_easy = font.render("EASY", True, (100, 0, b))
-    text_easy_x = width // 2 - text_easy.get_width() // 2
-    text_easy_y = height // 2 - text_easy.get_height() // 2
-    text_easy_w = text_easy.get_width()
-    text_easy_h = text_easy.get_height()
-    screen.blit(text_easy, (text_easy_x, text_easy_y - (text_easy_h * 2)))
-    pygame.draw.rect(screen, (100, 0, b), (text_easy_x - 10, text_easy_y - 10 - (text_easy_h * 2),
-                                           text_easy_w + 20, text_easy_h + 20), 1)
+    text_easy_w = text_easy.get_width() + 20
+    text_easy_h = text_easy.get_height() + 20
+    text_easy_x = (width // 2 - text_easy.get_width() // 2) - 10
+    text_easy_y = (height // 2 - text_easy.get_height() // 2) + 30 - (text_easy_h * 2)
+    screen.blit(text_easy, (text_easy_x + 10, text_easy_y + 10))
+    pygame.draw.rect(screen, (100, 0, b), (text_easy_x, text_easy_y,
+                                           text_easy_w, text_easy_h), 1)
     font = pygame.font.Font(None, 50)
     text_hard = font.render("HARD", True, (100, 0, b))
-    text_hard_x = width // 2 - text_hard.get_width() // 2
-    text_hard_y = height // 2 - text_hard.get_height() // 2
-    text_hard_w = text_hard.get_width()
-    text_hard_h = text_hard.get_height()
-    screen.blit(text_hard, (text_hard_x, text_hard_y + (text_hard_h * 2) + 20))
-    pygame.draw.rect(screen, (100, 0, b), (text_hard_x - 10, text_hard_y + 10 + (text_hard_h * 2),
-                                           text_hard_w + 20, text_hard_h + 20), 1)
+    text_hard_w = text_hard.get_width() + 20
+    text_hard_h = text_hard.get_height() + 20
+    text_hard_x = (width // 2 - text_hard.get_width() // 2) - 10
+    text_hard_y = (height // 2 - text_hard.get_height() // 2) + (text_hard_h * 2) - 50
+    screen.blit(text_hard, (text_hard_x + 10, text_hard_y + 10))
+    pygame.draw.rect(screen, (100, 0, b), (text_hard_x, text_hard_y,
+                                           text_hard_w, text_hard_h), 1)
     font = pygame.font.Font(None, 50)
     text_medium = font.render("MEDIUM", True, (100, 0, b))
-    text_medium_x = width // 2 - text_medium.get_width() // 2
-    text_medium_y = height // 2 - text_medium.get_height() // 2
-    text_medium_w = text_medium.get_width()
-    text_medium_h = text_medium.get_height()
-    screen.blit(text_medium, (text_medium_x, text_medium_y + 10))
-    pygame.draw.rect(screen, (100, 0, b), (text_medium_x - 10, text_medium_y,
-                                           text_medium_w + 20, text_medium_h + 20), 1)
+    text_medium_w = text_medium.get_width() + 20
+    text_medium_h = text_medium.get_height() + 20
+    text_medium_x = (width // 2 - text_medium.get_width() // 2) - 10
+    text_medium_y = (height // 2 - text_medium.get_height() // 2) - 10
+    screen.blit(text_medium, (text_medium_x + 10, text_medium_y + 10))
+    pygame.draw.rect(screen, (100, 0, b), (text_medium_x, text_medium_y,
+                                           text_medium_w, text_medium_h), 1)
     location_labels_levels = [[text_easy_x, text_easy_y, text_easy_h, text_easy_w],
                               [text_medium_x, text_medium_y, text_medium_h, text_medium_w],
                               [text_hard_x, text_hard_y, text_hard_w, text_hard_w]]
@@ -110,7 +110,6 @@ def draw_levels(screen):
 
 
 def level_selection(pos, loc):
-    print(pos)
     global tick
     global select_lavels
     e_x, e_y, e_h, e_w = loc[0]
