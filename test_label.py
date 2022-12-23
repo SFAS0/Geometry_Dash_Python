@@ -6,9 +6,9 @@ import os
 lavels = True
 select_lavels = False
 tick = 8
-r = 0
-g = 0
 b = 0
+add_text = 0
+step_text = 3
 
 
 def load_image(name, colorkey=None):
@@ -61,20 +61,18 @@ class Ladders(pygame.sprite.Sprite):
 
 
 def draw_label_level(screen):
-    global r, g, b
     screen.fill((0, 0, 0))
-    print(b)
     fon = pygame.transform.scale(load_image('data/start_fon.png'), (width, height))
     screen.blit(fon, (0, 0))
-    font = pygame.font.Font(None, 75)
+    font = pygame.font.Font(None, 75 + add_text)
     text = font.render("LEVELS", True, (100, 0, b))
-    text_x = width // 2 - text.get_width() // 2
-    text_y = (height // 2 - text.get_height() // 2) - 200
+    text_x = (width // 2 - text.get_width() // 2)
+    text_y = ((height // 2 - text.get_height() // 2) - 200)
     text_w = text.get_width()
     text_h = text.get_height()
     screen.blit(text, (text_x, text_y))
-    pygame.draw.rect(screen, (100, 0, b), (text_x - 10, text_y - 10,
-                                           text_w + 20, text_h + 20), 5)
+    pygame.draw.rect(screen, (100, 0, b), (text_x - 10 - add_text // 2, text_y - 13 - add_text // 2,
+                                           text_w + 20 + add_text, text_h + 20 + add_text), 5)
     return text_w, text_h, text_x, text_y
 
 
@@ -82,7 +80,7 @@ def draw_levels(screen):
     screen.fill((0, 0, 0))
     fon = pygame.transform.scale(load_image('data/lvl_fon.png'), (width, height))
     screen.blit(fon, (0, 0))
-    font = pygame.font.Font(None, 50)
+    font = pygame.font.Font(None, 50 + add_text)
     text_easy = font.render("EASY", True, (100, 0, b))
     text_easy_w = text_easy.get_width() + 20
     text_easy_h = text_easy.get_height() + 20
@@ -91,7 +89,7 @@ def draw_levels(screen):
     screen.blit(text_easy, (text_easy_x + 10, text_easy_y + 10))
     pygame.draw.rect(screen, (100, 0, b), (text_easy_x, text_easy_y,
                                            text_easy_w, text_easy_h), 3)
-    font = pygame.font.Font(None, 50)
+    font = pygame.font.Font(None, 50 + add_text)
     text_hard = font.render("HARD", True, (100, 0, b))
     text_hard_w = text_hard.get_width() + 20
     text_hard_h = text_hard.get_height() + 20
@@ -100,7 +98,7 @@ def draw_levels(screen):
     screen.blit(text_hard, (text_hard_x + 10, text_hard_y + 10))
     pygame.draw.rect(screen, (100, 0, b), (text_hard_x, text_hard_y,
                                            text_hard_w, text_hard_h), 3)
-    font = pygame.font.Font(None, 50)
+    font = pygame.font.Font(None, 50 + add_text)
     text_medium = font.render("MEDIUM", True, (100, 0, b))
     text_medium_w = text_medium.get_width() + 20
     text_medium_h = text_medium.get_height() + 20
@@ -159,6 +157,11 @@ cloock = pygame.time.Clock()
 running = True
 label_level = ''
 while running:
+    if add_text == 15:
+        step_text -= 3
+    elif add_text == 0:
+        step_text = 3
+    add_text += step_text
     if b == 255:
         color_step = -15
     elif b == 0:
