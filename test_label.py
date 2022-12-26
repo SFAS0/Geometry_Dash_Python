@@ -189,6 +189,7 @@ def level_selection(pos, loc):
     h_x, h_y, h_h, h_w = loc[2]
     if e_x < pos[0] < e_x + e_w and e_y < pos[1] < e_y + e_h:
         lvl_start = True
+        select_lavels = False
         print('esay')
     elif m_x < pos[0] < m_x + m_w and m_y < pos[1] < m_y + m_h:
         # ставим средний уровень
@@ -213,7 +214,6 @@ while running:
     elif b == 0:
         color_step = 15
     b += color_step
-    screen.fill((0, 0, 0))
     if lavels:
         label_level = draw_label_level(screen)
     elif select_lavels:
@@ -227,19 +227,27 @@ while running:
         elif select_lavels:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 level_selection(event.pos, levels)
-        else:
-            key = pygame.key.get_pressed()
-            if key[pygame.K_UP]:
-                pass
-    # camera.update(player)
-    # for sprite in ground_sprites:
-    #     camera.apply(sprite)
+        x, y = player.pos
+        key = pygame.key.get_pressed()
+        if key[pygame.K_UP] and lvl_start:
+            print('asd')
+            player.pos = x, y - 2
+            player.rect.y -= tile_height * 2
     if lvl_start:
+        x, y = player.pos
         fon = pygame.transform.scale(load_image('data/obstacles/bg.png'), (width, height))
         screen.blit(fon, (0, 0))
         tiles_group.draw(screen)
         player_group.draw(screen)
         platforms_sprites.draw(screen)
         platforms_sprites.update()
+        player.pos = x + 1, y
+        player.rect.x += tile_height
+        if level_map[y + 1][x] == '0':
+            player.pos = x, y + 1
+            player.rect.y += tile_height
+    # camera.update(player)
+    # for sprite in ground_sprites:
+    #     camera.apply(sprite)
     cloock.tick(tick)
     pygame.display.flip()
