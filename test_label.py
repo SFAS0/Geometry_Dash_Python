@@ -120,13 +120,13 @@ def level_selection(pos, loc):
     m_x, m_y, m_h, m_w = loc[1]
     h_x, h_y, h_h, h_w = loc[2]
     if e_x < pos[0] < e_x + e_w and e_y < pos[1] < e_y + e_h:
-        # ставил лёгкий уровень
+        # ставим лёгкий уровень
         print('esay')
     elif m_x < pos[0] < m_x + m_w and m_y < pos[1] < m_y + m_h:
-        # ставил средний уровень
+        # ставим средний уровень
         print('medium')
     elif h_x < pos[0] < h_x + h_w and h_y < pos[1] < h_y + h_h:
-        # ставил средний уровень
+        # ставим средний уровень
         print('hard')
     tick = 60
 
