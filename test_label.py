@@ -26,40 +26,6 @@ def load_image(name, colorkey=None):
     return image
 
 
-class Platform(pygame.sprite.Sprite):
-    def __init__(self, group, pos):
-        super().__init__(group)
-        self.image = pygame.Surface((50, 10))
-        pygame.draw.rect(self.image, (128, 128, 128), (0, 0, 50, 10))
-        self.rect = pygame.Rect(pos[0], pos[1], 50, 10)
-
-
-class Landing(pygame.sprite.Sprite):
-    def __init__(self, pos):
-        super().__init__(pers_sprites)
-        self.image = pygame.Surface((20, 20))
-        pygame.draw.rect(self.image, (0, 0, 255), (0, 0, 20, 20))
-        self.rect = pygame.Rect(pos[0], pos[1], 20, 20)
-
-    def update(self, move=0, bt=False):
-        if (not pygame.sprite.spritecollideany(self, platforms_sprites)
-                and not pygame.sprite.spritecollideany(self, ladders_sprites)):
-            self.rect = self.rect.move(0, 1)
-        if move != 0 and not bt:
-            self.rect = self.rect.move(move, 0)
-        if pygame.sprite.spritecollideany(self, ladders_sprites):
-            if bt:
-                self.rect = self.rect.move(0, move)
-
-
-class Ladders(pygame.sprite.Sprite):
-    def __init__(self, group, pos):
-        super().__init__(group)
-        self.image = pygame.Surface((10, 50))
-        pygame.draw.rect(self.image, (255, 0, 0), (0, 0, 10, 50))
-        self.rect = pygame.Rect(pos[0], pos[1], 10, 50)
-
-
 def draw_label_level(screen):
     screen.fill((0, 0, 0))
     fon = pygame.transform.scale(load_image('data/start_fon.png'), (width, height))
@@ -147,7 +113,8 @@ def load_level(filename):
 
 
 tile_images = {
-    'wall': load_image('data/obstacles/pol3.png')
+    'pol1': load_image('data/obstacles/pol1.png'),
+    'pol2': load_image('data/obstacles/pol2.png')
 }
 player_image = load_image('data/obstacles/avatar.png')
 tile_width = tile_height = 50
@@ -185,7 +152,9 @@ def generate_level(level):
             if level[y][x] == '0':
                 pass
             elif level[y][x] == '1':
-                Ground('wall', x, y)
+                Ground('pol1', x, y)
+            elif level[y][x] == '2':
+                Ground('pol2', x, y)
             elif level[y][x] == '@':
                 new_player = Cube(x, y)
                 level[y][x] = '.'
@@ -266,6 +235,8 @@ while running:
     # for sprite in ground_sprites:
     #     camera.apply(sprite)
     if lvl_start:
+        fon = pygame.transform.scale(load_image('data/obstacles/bg.png'), (width, height))
+        screen.blit(fon, (0, 0))
         tiles_group.draw(screen)
         player_group.draw(screen)
         platforms_sprites.draw(screen)
