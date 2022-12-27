@@ -7,16 +7,25 @@ from personage import Personage, Ground
 
 lavels = True
 select_lavels = False
-tick = 60
 b = 0
 add_text = 0
 step_text = 3
 
 
+pygame.init()
+width = 1900
+height = 900
+screen = pygame.display.set_mode((width, height))
+
+pygame.display.set_caption('Geometry_Dash_Python')
+
+fon_start = pygame.transform.scale(load_image('data/start_fon.png'), (width, height))
+fon_levels = pygame.transform.scale(load_image('data/lvl_fon.png'), (width, height))
+
+
 def draw_label_level(screen):
     screen.fill((0, 0, 0))
-    fon = pygame.transform.scale(load_image('data/start_fon.png'), (width, height))
-    screen.blit(fon, (0, 0))
+    screen.blit(fon_start, (0, 0))
     font = pygame.font.Font(None, 75 + add_text)
     text = font.render("LEVELS", True, (100, 0, b))
     text_x = (width // 2 - text.get_width() // 2)
@@ -47,8 +56,7 @@ def generate_level(level):
 
 def draw_levels(screen):
     screen.fill((0, 0, 0))
-    fon = pygame.transform.scale(load_image('data/lvl_fon.png'), (width, height))
-    screen.blit(fon, (0, 0))
+    screen.blit(fon_levels, (0, 0))
     font = pygame.font.Font(None, 50 + add_text)
     text_easy = font.render("EASY", True, (100, 0, b))
     text_easy_w = text_easy.get_width() + 20
@@ -91,20 +99,12 @@ def clicking_on_the_level_label(pos, label_level):
         select_lavels = True
 
 
-pygame.init()
-width = 1900
-height = 900
-screen = pygame.display.set_mode((width, height))
-
-pygame.display.set_caption('Geometry_Dash_Python')
-
 platforms_sprites = pygame.sprite.Group()
 pers_sprites = pygame.sprite.Group()
 ladders_sprites = pygame.sprite.Group()
 
 step = 10
 color_step = 15
-cloock = pygame.time.Clock()
 
 
 # class Ground(pygame.sprite.Sprite):
@@ -163,47 +163,48 @@ def level_selection(pos, loc):
 running = True
 label_level = ''
 lvl_start = False
+tick = 60
+cloock = pygame.time.Clock()
+fon = pygame.transform.scale(load_image('data/obstacles/bg.png'), (width, height))
 while running:
     if lvl_start:
-        fon = pygame.transform.scale(load_image('data/obstacles/bg.png'), (width, height))
         screen.blit(fon, (0, 0))
         tiles_group.draw(screen)
         pers_sprites.draw(screen)
-        pers_sprites.update(ground_sprites)
+        pers_sprites.update(obj=ground_sprites)
         ground_sprites.draw(screen)
         platforms_sprites.draw(screen)
         platforms_sprites.update()
-    if add_text == 15:
-        step_text = -1
-    elif add_text == 0:
-        step_text = 1
-    add_text += step_text
-    if b == 255:
-        color_step = -5
-    elif b == 0:
-        color_step = 5
-    b += color_step
-    if lavels:
-        label_level = draw_label_level(screen)
-    elif select_lavels:
-        levels = draw_levels(screen)
+    else:
+        if add_text == 15:
+            step_text = -1
+        elif add_text == 0:
+            step_text = 1
+        add_text += step_text
+        if b == 255:
+            color_step = -5
+        elif b == 0:
+            color_step = 5
+        b += color_step
+        if lavels:
+            label_level = draw_label_level(screen)
+        elif select_lavels:
+            levels = draw_levels(screen)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if lavels:
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    clicking_on_the_level_label(event.pos, label_level)
+            elif select_lavels:
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    level_selection(event.pos, levels)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if lavels:
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                clicking_on_the_level_label(event.pos, label_level)
-        elif select_lavels:
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                level_selection(event.pos, levels)
-        # x, y = player.rect.x, player.rect.x
         key = pygame.key.get_pressed()
         if key[pygame.K_UP] and lvl_start:
-            player.update('up')
-            # player.rect.centery += 20
-        # player.rect.centerx += 1
-        # if level_map[y + 1][x] == '0':
-        #     player.rect.centery += 10
+            player.update(action='up')
     # camera.update(player)
     # for sprite in ground_sprites:
     #     camera.apply(sprite)

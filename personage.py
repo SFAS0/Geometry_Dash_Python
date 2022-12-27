@@ -2,12 +2,6 @@ import pygame
 from functions import load_image
 
 
-# tile_images = {
-#     'pol1': load_image('data/obstacles/pol1.png'),
-#     'pol2': load_image('data/obstacles/pol2.png')
-# }
-
-
 class Personage(pygame.sprite.Sprite):
     def __init__(self, pos, group, name_file):
         super().__init__(group)
@@ -17,12 +11,12 @@ class Personage(pygame.sprite.Sprite):
         self.rect.x = pos[0]
         self.rect.y = pos[1]
 
-    def update(self, obj=None):
-        self.rect = self.rect.move(12, 0)
-        if obj == 'up':
-            self.rect = self.rect.move(0, -12)
+    def update(self, obj=None, action=''):
+        self.rect = self.rect.move(20, 0)
+        if action == 'up':
+            self.rect = self.rect.move(0, -28)
         elif not pygame.sprite.spritecollideany(self, obj):
-            self.rect = self.rect.move(0, 12)
+            self.rect = self.rect.move(0, 28)
 
 
 class Ground(pygame.sprite.Sprite):
