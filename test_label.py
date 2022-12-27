@@ -1,29 +1,16 @@
 import pygame
 import sys
 import os
+from functions import load_image, load_level
+from personage import Personage, Ground
 
 
 lavels = True
 select_lavels = False
-tick = 8
+tick = 60
 b = 0
 add_text = 0
 step_text = 3
-
-
-def load_image(name, colorkey=None):
-    if not os.path.isfile(name):
-        print(f"Файл не найден")
-        sys.exit()
-    image = pygame.image.load(name)
-    if colorkey is not None:
-        image = image.convert()
-        if colorkey == -1:
-            colorkey = image.get_at((0, 0))
-        image.set_colorkey(colorkey)
-    else:
-        image.convert_alpha()
-    return image
 
 
 def draw_label_level(screen):
@@ -40,6 +27,22 @@ def draw_label_level(screen):
     pygame.draw.rect(screen, (100, 0, b), (text_x - 10 - add_text // 2, text_y - 13 - add_text // 2,
                                            text_w + 20 + add_text, text_h + 20 + add_text), 5)
     return text_w, text_h, text_x, text_y
+
+
+def generate_level(level):
+    new_player, x, y = None, None, None
+    for y in range(len(level)):
+        for x in range(len(level[y])):
+            if level[y][x] == '0':
+                pass
+            elif level[y][x] == '1':
+                Ground(ground_sprites, 'data/obstacles/pol1.png', (x, y))
+            elif level[y][x] == '2':
+                Ground(ground_sprites, 'data/obstacles/pol2.png', (x, y))
+            elif level[y][x] == '@':
+                new_player = Personage((100, 500), pers_sprites, 'data/obstacles/avatar.png')
+                level[y][x] = '.'
+    return new_player, x, y
 
 
 def draw_levels(screen):
@@ -104,37 +107,12 @@ color_step = 15
 cloock = pygame.time.Clock()
 
 
-def load_level(filename):
-    filename = "data/" + filename
-    with open(filename, 'r') as mapFile:
-        level_map = [line.strip() for line in mapFile]
-    max_width = max(map(len, level_map))
-    return list(map(lambda x: list(x.ljust(max_width, '.')), level_map))
-
-
-tile_images = {
-    'pol1': load_image('data/obstacles/pol1.png'),
-    'pol2': load_image('data/obstacles/pol2.png')
-}
-player_image = load_image('data/obstacles/avatar.png')
-tile_width = tile_height = 50
-
-
-class Ground(pygame.sprite.Sprite):
-    def __init__(self, tile_type, pos_x, pos_y):
-        super().__init__(tiles_group, ground_sprites)
-        self.image = tile_images[tile_type]
-        self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
-
-
-class Cube(pygame.sprite.Sprite):
-    def __init__(self, pos_x, pos_y):
-        super().__init__(player_group, player_group)
-        self.image = player_image
-        self.rect = self.image.get_rect().move(
-            tile_width * pos_x + 15, tile_height * pos_y + 5)
-        self.pos = pos_x, pos_y
+# class Ground(pygame.sprite.Sprite):
+#     def __init__(self, tile_type, pos_x, pos_y):
+#         super().__init__(tiles_group, ground_sprites)
+#         self.image = tile_images[tile_type]
+#         self.rect = self.image.get_rect().move(
+#             tile_width * pos_x, tile_height * pos_y)
 
 
 player = None
@@ -143,22 +121,6 @@ player = None
 ground_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
-
-
-def generate_level(level):
-    new_player, x, y = None, None, None
-    for y in range(len(level)):
-        for x in range(len(level[y])):
-            if level[y][x] == '0':
-                pass
-            elif level[y][x] == '1':
-                Ground('pol1', x, y)
-            elif level[y][x] == '2':
-                Ground('pol2', x, y)
-            elif level[y][x] == '@':
-                new_player = Cube(x, y)
-                level[y][x] = '.'
-    return new_player, x, y
 
 
 class Camera:
@@ -181,7 +143,6 @@ player, level_x, level_y = generate_level(level_map)
 
 
 def level_selection(pos, loc):
-    global tick
     global select_lavels
     global lvl_start
     e_x, e_y, e_h, e_w = loc[0]
@@ -197,22 +158,30 @@ def level_selection(pos, loc):
     elif h_x < pos[0] < h_x + h_w and h_y < pos[1] < h_y + h_h:
         # ставим средний уровень
         print('hard')
-    tick = 60
 
 
 running = True
 label_level = ''
 lvl_start = False
 while running:
+    if lvl_start:
+        fon = pygame.transform.scale(load_image('data/obstacles/bg.png'), (width, height))
+        screen.blit(fon, (0, 0))
+        tiles_group.draw(screen)
+        pers_sprites.draw(screen)
+        pers_sprites.update(ground_sprites)
+        ground_sprites.draw(screen)
+        platforms_sprites.draw(screen)
+        platforms_sprites.update()
     if add_text == 15:
-        step_text -= 3
+        step_text = -1
     elif add_text == 0:
-        step_text = 3
+        step_text = 1
     add_text += step_text
     if b == 255:
-        color_step = -15
+        color_step = -5
     elif b == 0:
-        color_step = 15
+        color_step = 5
     b += color_step
     if lavels:
         label_level = draw_label_level(screen)
@@ -227,25 +196,14 @@ while running:
         elif select_lavels:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 level_selection(event.pos, levels)
-        x, y = player.pos
+        # x, y = player.rect.x, player.rect.x
         key = pygame.key.get_pressed()
         if key[pygame.K_UP] and lvl_start:
-            print('asd')
-            player.pos = x, y - 2
-            player.rect.y -= tile_height * 2
-    if lvl_start:
-        x, y = player.pos
-        fon = pygame.transform.scale(load_image('data/obstacles/bg.png'), (width, height))
-        screen.blit(fon, (0, 0))
-        tiles_group.draw(screen)
-        player_group.draw(screen)
-        platforms_sprites.draw(screen)
-        platforms_sprites.update()
-        player.pos = x + 1, y
-        player.rect.x += tile_height
-        if level_map[y + 1][x] == '0':
-            player.pos = x, y + 1
-            player.rect.y += tile_height
+            player.update('up')
+            # player.rect.centery += 20
+        # player.rect.centerx += 1
+        # if level_map[y + 1][x] == '0':
+        #     player.rect.centery += 10
     # camera.update(player)
     # for sprite in ground_sprites:
     #     camera.apply(sprite)
