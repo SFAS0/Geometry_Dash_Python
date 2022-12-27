@@ -49,7 +49,7 @@ def generate_level(level):
             elif level[y][x] == '2':
                 Ground(ground_sprites, 'data/obstacles/pol2.png', (x, y))
             elif level[y][x] == '@':
-                new_player = Personage((100, 500), pers_sprites, 'data/obstacles/avatar.png')
+                new_player = Personage((x, y), pers_sprites, 'data/obstacles/avatar.png')
                 level[y][x] = '.'
     return new_player, x, y
 
@@ -126,18 +126,15 @@ player_group = pygame.sprite.Group()
 class Camera:
     def __init__(self):
         self.dx = 0
-        self.dy = 0
 
     def apply(self, obj):
         obj.rect.x += self.dx
-        obj.rect.y += self.dy
 
     def update(self, target):
-        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
-        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
+        self.dx = -(target.rect.x - 280)
 
 
-# camera = Camera()
+camera = Camera()
 level_map = load_level('lvl1.txt')
 player, level_x, level_y = generate_level(level_map)
 
@@ -168,10 +165,16 @@ cloock = pygame.time.Clock()
 fon = pygame.transform.scale(load_image('data/obstacles/bg.png'), (width, height))
 while running:
     if lvl_start:
+        camera.update(player)
+        for sprite in pers_sprites:
+            camera.apply(sprite)
+        for sprite in ground_sprites:
+            camera.apply(sprite)
         screen.blit(fon, (0, 0))
         tiles_group.draw(screen)
+        # player.image = player.update(ground_sprites, 'up', img=player.image)
         pers_sprites.draw(screen)
-        pers_sprites.update(obj=ground_sprites)
+        pers_sprites.update(ground_sprites, '', player, )
         ground_sprites.draw(screen)
         platforms_sprites.draw(screen)
         platforms_sprites.update()
@@ -204,9 +207,6 @@ while running:
             running = False
         key = pygame.key.get_pressed()
         if key[pygame.K_UP] and lvl_start:
-            player.update(action='up')
-    # camera.update(player)
-    # for sprite in ground_sprites:
-    #     camera.apply(sprite)
+            player.update(ground_sprites, 'up')
     cloock.tick(tick)
     pygame.display.flip()
