@@ -33,6 +33,13 @@ class Personage(pygame.sprite.Sprite):
             self.rect = self.rect.move(0, 11)
             self.cur_frame = (self.cur_frame + 1) % len(self.frames)
             self.image = self.frames[self.cur_frame]
+        elif pygame.sprite.spritecollideany(self, obj):
+            if self.cur_frame % 2 == 0:
+                self.image = self.frames[self.cur_frame]
+            elif self.cur_frame == 7:
+                self.image = self.frames[0]
+            else:
+                self.image = self.frames[self.cur_frame + 1]
         return ans
 
 
