@@ -1,6 +1,5 @@
 import pygame
-import sys
-import os
+
 from functions import load_image, load_level
 from personage import Personage, Ground
 
