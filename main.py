@@ -136,27 +136,35 @@ class Camera:
         self.dx = -(target.rect.x - 280)
 
 
+level_map, player, level_x, level_y = '', '', '', ''
+camera = Camera()
+
+
 def level_selection(pos, loc):
     global select_lavels
     global lvl_start
+    global level_map
+    global player, level_x, level_y
     e_x, e_y, e_h, e_w = loc[0]
     m_x, m_y, m_h, m_w = loc[1]
     h_x, h_y, h_h, h_w = loc[2]
     if e_x < pos[0] < e_x + e_w and e_y < pos[1] < e_y + e_h:
         lvl_start = True
         select_lavels = False
-        print('esay')
+        level_map = load_level('lvl1.txt')
+        player, level_x, level_y = generate_level(level_map)
     elif m_x < pos[0] < m_x + m_w and m_y < pos[1] < m_y + m_h:
-        # ставим средний уровень
-        print('medium')
+        lvl_start = True
+        select_lavels = False
+        level_map = load_level('lvl2.txt')
+        player, level_x, level_y = generate_level(level_map)
     elif h_x < pos[0] < h_x + h_w and h_y < pos[1] < h_y + h_h:
-        # ставим средний уровень
-        print('hard')
+        lvl_start = True
+        select_lavels = False
+        level_map = load_level('lvl3.txt')
+        player, level_x, level_y = generate_level(level_map)
 
 
-camera = Camera()
-level_map = load_level('lvl1.txt')
-player, level_x, level_y = generate_level(level_map)
 
 running = True
 label_level = ''
