@@ -1,7 +1,7 @@
 import pygame
 
 from functions import load_image, load_level
-from personage import Personage, Ground
+from personage import Personage, Objects
 
 
 lavels = True
@@ -44,12 +44,26 @@ def generate_level(level):
             if level[y][x] == '0':
                 pass
             elif level[y][x] == '1':
-                Ground(ground_sprites, 'data/obstacles/pol1.png', (x, y))
+                Objects(ground_sprites, 'data/obstacles/pol1.png', (x, y))
             elif level[y][x] == '2':
-                Ground(ground_sprites, 'data/obstacles/pol2.png', (x, y))
+                Objects(obstacles_group, 'data/obstacles/pol2.png', (x, y))
             elif level[y][x] == '@':
                 new_player = Personage((x, y), pers_sprites, 'data/obstacles/avatar.png')
                 level[y][x] = '.'
+            elif level[y][x] == '4':
+                Objects(obstacles_group, 'data/obstacles/triangle1.png', (x, y))
+            elif level[y][x] == '3':
+                Objects(obstacles_group, 'data/obstacles/block.png', (x, y))
+            elif level[y][x] == '7':
+                Objects(obstacles_group, 'data/obstacles/180_low_triangel.png', (x, y))
+            elif level[y][x] == '*':
+                Objects(obstacles_group, 'data/obstacles/low_triangel.png', (x, y))
+            elif level[y][x] == '_':
+                Objects(ground_sprites, 'data/obstacles/low_block.png', (x, y))
+            elif level[y][x] == '$':
+                Objects(point_group, 'data/obstacles/point.png', (x, y))
+            elif level[y][x] == '|':
+                Objects(finish_group, 'data/obstacles/finish.png', (x, y))
     return new_player, x, y
 
 
@@ -100,26 +114,15 @@ def clicking_on_the_level_label(pos, label_level):
 
 platforms_sprites = pygame.sprite.Group()
 pers_sprites = pygame.sprite.Group()
-ladders_sprites = pygame.sprite.Group()
+ground_sprites = pygame.sprite.Group()
+obstacles_group = pygame.sprite.Group()
+point_group = pygame.sprite.Group()
+finish_group = pygame.sprite.Group()
 
 step = 10
 color_step = 15
 
-
-# class Ground(pygame.sprite.Sprite):
-#     def __init__(self, tile_type, pos_x, pos_y):
-#         super().__init__(tiles_group, ground_sprites)
-#         self.image = tile_images[tile_type]
-#         self.rect = self.image.get_rect().move(
-#             tile_width * pos_x, tile_height * pos_y)
-
-
 player = None
-
-
-ground_sprites = pygame.sprite.Group()
-tiles_group = pygame.sprite.Group()
-player_group = pygame.sprite.Group()
 
 
 class Camera:
@@ -131,11 +134,6 @@ class Camera:
 
     def update(self, target):
         self.dx = -(target.rect.x - 280)
-
-
-camera = Camera()
-level_map = load_level('lvl1.txt')
-player, level_x, level_y = generate_level(level_map)
 
 
 def level_selection(pos, loc):
@@ -156,6 +154,10 @@ def level_selection(pos, loc):
         print('hard')
 
 
+camera = Camera()
+level_map = load_level('lvl1.txt')
+player, level_x, level_y = generate_level(level_map)
+
 running = True
 label_level = ''
 lvl_start = False
@@ -169,13 +171,21 @@ while running:
             camera.apply(sprite)
         for sprite in ground_sprites:
             camera.apply(sprite)
+        for sprite in obstacles_group:
+            camera.apply(sprite)
+        for sprite in point_group:
+            camera.apply(sprite)
+        for sprite in finish_group:
+            camera.apply(sprite)
         screen.blit(fon, (0, 0))
-        tiles_group.draw(screen)
         pers_sprites.draw(screen)
-        pers_sprites.update(ground_sprites, '')
+        pers_sprites.update((ground_sprites, obstacles_group), '')
         ground_sprites.draw(screen)
         platforms_sprites.draw(screen)
         platforms_sprites.update()
+        obstacles_group.draw(screen)
+        point_group.draw(screen)
+        finish_group.draw(screen)
     else:
         if add_text == 15:
             step_text = -1
@@ -205,6 +215,6 @@ while running:
             running = False
         key = pygame.key.get_pressed()
         if key[pygame.K_UP] and lvl_start:
-            player.update(ground_sprites, 'up')
+            player.update((ground_sprites, obstacles_group), 'up')
     cloock.tick(tick)
     pygame.display.flip()
