@@ -28,9 +28,9 @@ class Personage(pygame.sprite.Sprite):
 
     def update(self, obj=[None, None], action=''):
         ans = "LIFE"
-        self.rect = self.rect.move(20, 0)
+        self.rect = self.rect.move(22, 0)
         if action == 'up' and pygame.sprite.spritecollideany(self, obj[0]):
-            self.rect = self.rect.move(0, -100)
+            self.rect = self.rect.move(0, -125)
         elif not pygame.sprite.spritecollideany(self, obj[0]):
             self.rect = self.rect.move(0, 11)
             self.cur_frame = (self.cur_frame + 1) % len(self.frames)
@@ -46,8 +46,9 @@ class Personage(pygame.sprite.Sprite):
                         self.image = self.frames[self.cur_frame + 2]
                 except IndexError:
                     self.image = self.frames[0]
-        if pygame.sprite.spritecollideany(self, obj[1]):
-            ans = "DEAD"
+        for sprite in obj[1]:
+            if pygame.sprite.collide_mask(self, sprite):
+                ans = "DEAD"
         return ans
 
 
