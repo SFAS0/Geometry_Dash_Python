@@ -32,7 +32,7 @@ class Personage(pygame.sprite.Sprite):
         if action == 'up' and pygame.sprite.spritecollideany(self, obj[0]):
             self.rect = self.rect.move(0, -125)
         elif not pygame.sprite.spritecollideany(self, obj[0]):
-            self.rect = self.rect.move(0, 11)
+            self.rect = self.rect.move(0, 13)
             self.cur_frame = (self.cur_frame + 1) % len(self.frames)
             self.image = self.frames[self.cur_frame]
         elif pygame.sprite.spritecollideany(self, obj[0]):
