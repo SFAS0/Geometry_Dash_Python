@@ -1,6 +1,6 @@
 import pygame
 
-from functions import load_image, load_level
+from functions import load_image, load_level, all_sprites
 from personage import Personage, Objects
 
 
@@ -18,8 +18,8 @@ screen = pygame.display.set_mode((width, height))
 
 pygame.display.set_caption('Geometry_Dash_Python')
 
-fon_start = pygame.transform.scale(load_image('data/start_fon.png'), (width, height))
-fon_levels = pygame.transform.scale(load_image('data/lvl_fon.png'), (width, height))
+fon_start = pygame.transform.scale(load_image('data/fons/start_fon.png'), (width, height))
+fon_levels = pygame.transform.scale(load_image('data/fons/lvl_fon.png'), (width, height))
 
 
 def draw_label_level(screen):
@@ -48,7 +48,7 @@ def generate_level(level):
             elif level[y][x] == '2':
                 Objects(obstacles_group, 'data/obstacles/pol2.png', (x, y))
             elif level[y][x] == '@':
-                new_player = Personage((x, y), pers_sprites, 'data/obstacles/avatar.png')
+                new_player = Personage((x, y), pers_sprites, 'data/cube/avatar.png')
                 level[y][x] = '.'
             elif level[y][x] == '4':
                 Objects(obstacles_group, 'data/obstacles/triangle1.png', (x, y))
@@ -61,7 +61,7 @@ def generate_level(level):
             elif level[y][x] == '_':
                 Objects(ground_sprites, 'data/obstacles/low_block.png', (x, y))
             elif level[y][x] == '$':
-                Objects(point_group, 'data/obstacles/point.png', (x, y))
+                Objects(point_group, 'data/treasure/point.png', (x, y))
             elif level[y][x] == '|':
                 Objects(finish_group, 'data/obstacles/finish.png', (x, y))
     return new_player, x, y
@@ -112,7 +112,6 @@ def clicking_on_the_level_label(pos, label_level):
         select_lavels = True
 
 
-platforms_sprites = pygame.sprite.Group()
 pers_sprites = pygame.sprite.Group()
 ground_sprites = pygame.sprite.Group()
 obstacles_group = pygame.sprite.Group()
@@ -136,7 +135,6 @@ class Camera:
         self.dx = -(target.rect.x - 280)
 
 
-level_map, player, level_x, level_y, running_level = '', '', '', '', ''
 camera = Camera()
 
 
@@ -151,22 +149,18 @@ def level_selection(pos=(0, 0), loc=((0, 0, 0, 0), (0, 0, 0, 0), (0, 0, 0, 0)), 
     if e_x < pos[0] < e_x + e_w and e_y < pos[1] < e_y + e_h or run_lvl == 'lvl1.txt':
         lvl_start = True
         select_lavels = False
-        level_map = load_level('lvl1.txt')
-        player, level_x, level_y = generate_level(level_map)
+        player, level_x, level_y = generate_level(load_level('lvls/lvl1.txt'))
         running_level = 'lvl1.txt'
     elif m_x < pos[0] < m_x + m_w and m_y < pos[1] < m_y + m_h or run_lvl == 'lvl2.txt':
         lvl_start = True
         select_lavels = False
-        level_map = load_level('lvl2.txt')
-        player, level_x, level_y = generate_level(level_map)
+        player, level_x, level_y = generate_level(load_level('lvls/lvl2.txt'))
         running_level = 'lvl2.txt'
     elif h_x < pos[0] < h_x + h_w and h_y < pos[1] < h_y + h_h or run_lvl == 'lvl3.txt':
         lvl_start = True
         select_lavels = False
-        level_map = load_level('lvl3.txt')
-        player, level_x, level_y = generate_level(level_map)
+        player, level_x, level_y = generate_level(load_level('lvls/lvl3.txt'))
         running_level = 'lvl3.txt'
-
 
 
 running = True
@@ -174,37 +168,21 @@ label_level = ''
 lvl_start = False
 tick = 60
 cloock = pygame.time.Clock()
-fon = pygame.transform.scale(load_image('data/obstacles/bg.png'), (width, height))
+sprites = [pers_sprites, ground_sprites, obstacles_group, point_group, finish_group]
+fon = pygame.transform.scale(load_image('data/fons/bg.png'), (width, height))
 while running:
     if lvl_start:
         camera.update(player)
-        for sprite in pers_sprites:
-            camera.apply(sprite)
-        for sprite in ground_sprites:
-            camera.apply(sprite)
-        for sprite in obstacles_group:
-            camera.apply(sprite)
-        for sprite in point_group:
-            camera.apply(sprite)
-        for sprite in finish_group:
+        for sprite in all_sprites:
             camera.apply(sprite)
         screen.blit(fon, (0, 0))
-        pers_sprites.draw(screen)
-        ans = player.update((ground_sprites, obstacles_group), '')
+        ans = player.update((ground_sprites, obstacles_group))
+        for group in sprites:
+            group.draw(screen)
         if ans == "DEAD":
-            platforms_sprites = pygame.sprite.Group()
-            pers_sprites = pygame.sprite.Group()
-            ground_sprites = pygame.sprite.Group()
-            obstacles_group = pygame.sprite.Group()
-            point_group = pygame.sprite.Group()
-            finish_group = pygame.sprite.Group()
+            for group in sprites:
+                group.empty()
             level_selection(run_lvl=running_level)
-        ground_sprites.draw(screen)
-        platforms_sprites.draw(screen)
-        platforms_sprites.update()
-        obstacles_group.draw(screen)
-        point_group.draw(screen)
-        finish_group.draw(screen)
     else:
         if add_text == 15:
             step_text = -1

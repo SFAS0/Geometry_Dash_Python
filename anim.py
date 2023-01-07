@@ -1,13 +1,13 @@
 import sys
 import os
-
 import pygame
+
+from functions import all_sprites
 
 pygame.init()
 WIDTH, HEIGHT = 600, 600
 FPS = 3
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-all_sprites = pygame.sprite.Group()
 
 
 def load_image(name, colorkey=None):
@@ -48,7 +48,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.image = self.frames[self.cur_frame]
 
 
-dragon = AnimatedSprite(load_image("data/obstacles/anim_cub.png"), 4, 2, 45, 45)
+dragon = AnimatedSprite(load_image("data/cube/anim_cub.png"), 4, 2, 45, 45)
 
 
 cloock = pygame.time.Clock()
