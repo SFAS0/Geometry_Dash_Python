@@ -146,21 +146,20 @@ def level_selection(pos=(0, 0), loc=((0, 0, 0, 0), (0, 0, 0, 0), (0, 0, 0, 0)), 
     e_x, e_y, e_h, e_w = loc[0]
     m_x, m_y, m_h, m_w = loc[1]
     h_x, h_y, h_h, h_w = loc[2]
-    if e_x < pos[0] < e_x + e_w and e_y < pos[1] < e_y + e_h or run_lvl == 'lvl1.txt':
+    if e_x < pos[0] < e_x + e_w and e_y < pos[1] < e_y + e_h or run_lvl == 'lvl1':
         lvl_start = True
-        select_lavels = False
-        player, level_x, level_y = generate_level(load_level('lvls/lvl1.txt'))
-        running_level = 'lvl1.txt'
-    elif m_x < pos[0] < m_x + m_w and m_y < pos[1] < m_y + m_h or run_lvl == 'lvl2.txt':
+        running_level = 'lvl1'
+    elif m_x < pos[0] < m_x + m_w and m_y < pos[1] < m_y + m_h or run_lvl == 'lvl2':
         lvl_start = True
-        select_lavels = False
-        player, level_x, level_y = generate_level(load_level('lvls/lvl2.txt'))
-        running_level = 'lvl2.txt'
-    elif h_x < pos[0] < h_x + h_w and h_y < pos[1] < h_y + h_h or run_lvl == 'lvl3.txt':
+        running_level = 'lvl2'
+    elif h_x < pos[0] < h_x + h_w and h_y < pos[1] < h_y + h_h or run_lvl == 'lvl3':
         lvl_start = True
+        running_level = 'lvl3'
+    if lvl_start:
         select_lavels = False
-        player, level_x, level_y = generate_level(load_level('lvls/lvl3.txt'))
-        running_level = 'lvl3.txt'
+        player, level_x, level_y = generate_level(load_level(f'lvls/{running_level}.txt'))
+        pygame.mixer.music.load(f'data/sounds/{running_level}.mp3')
+        pygame.mixer.music.play(0, True, 0)
 
 
 running = True
