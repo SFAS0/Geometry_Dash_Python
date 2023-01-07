@@ -136,33 +136,36 @@ class Camera:
         self.dx = -(target.rect.x - 280)
 
 
-level_map, player, level_x, level_y = '', '', '', ''
+level_map, player, level_x, level_y, running_level = '', '', '', '', ''
 camera = Camera()
 
 
-def level_selection(pos, loc):
+def level_selection(pos=(0, 0), loc=((0, 0, 0, 0), (0, 0, 0, 0), (0, 0, 0, 0)), run_lvl=''):
     global select_lavels
     global lvl_start
     global level_map
-    global player, level_x, level_y
+    global player, level_x, level_y, running_level
     e_x, e_y, e_h, e_w = loc[0]
     m_x, m_y, m_h, m_w = loc[1]
     h_x, h_y, h_h, h_w = loc[2]
-    if e_x < pos[0] < e_x + e_w and e_y < pos[1] < e_y + e_h:
+    if e_x < pos[0] < e_x + e_w and e_y < pos[1] < e_y + e_h or run_lvl == 'lvl1.txt':
         lvl_start = True
         select_lavels = False
         level_map = load_level('lvl1.txt')
         player, level_x, level_y = generate_level(level_map)
-    elif m_x < pos[0] < m_x + m_w and m_y < pos[1] < m_y + m_h:
+        running_level = 'lvl1.txt'
+    elif m_x < pos[0] < m_x + m_w and m_y < pos[1] < m_y + m_h or run_lvl == 'lvl2.txt':
         lvl_start = True
         select_lavels = False
         level_map = load_level('lvl2.txt')
         player, level_x, level_y = generate_level(level_map)
-    elif h_x < pos[0] < h_x + h_w and h_y < pos[1] < h_y + h_h:
+        running_level = 'lvl2.txt'
+    elif h_x < pos[0] < h_x + h_w and h_y < pos[1] < h_y + h_h or run_lvl == 'lvl3.txt':
         lvl_start = True
         select_lavels = False
         level_map = load_level('lvl3.txt')
         player, level_x, level_y = generate_level(level_map)
+        running_level = 'lvl3.txt'
 
 
 
@@ -187,7 +190,15 @@ while running:
             camera.apply(sprite)
         screen.blit(fon, (0, 0))
         pers_sprites.draw(screen)
-        pers_sprites.update((ground_sprites, obstacles_group), '')
+        ans = player.update((ground_sprites, obstacles_group), '')
+        if ans == "DEAD":
+            platforms_sprites = pygame.sprite.Group()
+            pers_sprites = pygame.sprite.Group()
+            ground_sprites = pygame.sprite.Group()
+            obstacles_group = pygame.sprite.Group()
+            point_group = pygame.sprite.Group()
+            finish_group = pygame.sprite.Group()
+            level_selection(run_lvl=running_level)
         ground_sprites.draw(screen)
         platforms_sprites.draw(screen)
         platforms_sprites.update()

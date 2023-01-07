@@ -27,7 +27,6 @@ class Personage(pygame.sprite.Sprite):
                     frame_location, self.rect.size)))
 
     def update(self, obj=[None, None], action=''):
-        ans = True
         self.rect = self.rect.move(20, 0)
         if action == 'up' and pygame.sprite.spritecollideany(self, obj[0]):
             self.rect = self.rect.move(0, -100)
@@ -48,7 +47,6 @@ class Personage(pygame.sprite.Sprite):
                         self.image = self.frames[self.cur_frame + 2]
                 except IndexError:
                     self.image = self.frames[0]
-        return ans
 
 
 class Objects(pygame.sprite.Sprite):
