@@ -1,4 +1,5 @@
 import pygame
+import pygame.key
 
 from functions import load_image, load_level, all_sprites, jumped
 from personage import Personage, Objects
@@ -90,6 +91,19 @@ def draw_levels(screen):
     return location_labels_levels
 
 
+def draw_quit(place):
+    screen.fill((0, 0, 0))
+    screen.blit(fon_levels, (0, 0))
+    font = pygame.font.Font(None, 75 + add_text)
+    text = font.render('Выйти с уровня', True, (100, 0, b))
+    text_x = (width // 2 - text.get_width() // 2)
+    text_y = (height // 2 - text.get_height() // 2)
+    place.blit(text, (text_x + 10, text_y + 10))
+    pygame.draw.rect(screen, (100, 0, b), (text_x, text_y,
+                                           text.get_width() + 20, text.get_height() + 20), 3)
+    return text.get_width(), text.get_height(), text_x, text_y
+
+
 def clicking_on_the_level_label(pos, label_level):
     global lavels
     global select_lavels
@@ -97,6 +111,16 @@ def clicking_on_the_level_label(pos, label_level):
     if x < pos[0] < x + w and y < pos[1] < y + h:
         lavels = False
         select_lavels = True
+
+
+def clicking_on_the_quit_label(pos, label):
+    global lvl_start, select_lavels, lavels, game_stop
+    w, h, x, y = label
+    if x < pos[0] < x + w and y < pos[1] < y + h:
+        lvl_start = False
+        lavels = False
+        select_lavels = True
+        game_stop = False
 
 
 pers_sprites = pygame.sprite.Group()
@@ -150,6 +174,7 @@ def level_selection(pos=(0, 0), loc=((0, 0, 0, 0), (0, 0, 0, 0), (0, 0, 0, 0)), 
 
 
 running = True
+game_stop = False
 count = None
 label_level = ''
 lvl_start = False
@@ -158,50 +183,65 @@ cloock = pygame.time.Clock()
 sprites = [pers_sprites, ground_sprites, obstacles_group, point_group, finish_group]
 fon = pygame.transform.scale(load_image('data/fons/bg.png'), (width, height))
 while running:
-    if lvl_start:
-        camera.update(player)
-        for sprite in all_sprites:
-            camera.apply(sprite)
-        screen.blit(fon, (0, 0))
-        ans = player.update((ground_sprites, obstacles_group))
-        for group in sprites:
-            group.draw(screen)
-        if ans == "DEAD" and not jumped:
+    if not game_stop:
+        if lvl_start:
+            camera.update(player)
+            for sprite in all_sprites:
+                camera.apply(sprite)
+            screen.blit(fon, (0, 0))
+            ans = player.update((ground_sprites, obstacles_group))
             for group in sprites:
-                group.empty()
-            level_selection(run_lvl=running_level)
-    else:
-        if add_text == 15:
-            step_text = -1
-        elif add_text == 0:
-            step_text = 1
-        add_text += step_text
-        if b == 255:
-            color_step = -5
-        elif b == 0:
-            color_step = 5
-        b += color_step
-        if lavels:
-            label_level = draw_label_level(screen)
-        elif select_lavels:
-            levels = draw_levels(screen)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+                group.draw(screen)
+            if ans == "DEAD" and not jumped:
+                for group in sprites:
+                    group.empty()
+                level_selection(run_lvl=running_level)
+        else:
+            if add_text == 15:
+                step_text = -1
+            elif add_text == 0:
+                step_text = 1
+            add_text += step_text
+            if b == 255:
+                color_step = -5
+            elif b == 0:
+                color_step = 5
+            b += color_step
             if lavels:
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    clicking_on_the_level_label(event.pos, label_level)
+                label_level = draw_label_level(screen)
             elif select_lavels:
-                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    level_selection(event.pos, levels)
+                levels = draw_levels(screen)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if lavels:
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        clicking_on_the_level_label(event.pos, label_level)
+                elif select_lavels:
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        level_selection(event.pos, levels)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         key = pygame.key.get_pressed()
-        if key[pygame.K_UP] and lvl_start:
+        if key[pygame.K_UP] and lvl_start and not game_stop and player.can_jump(ground_sprites):
             player.update((ground_sprites, obstacles_group), 'up')
             count = 0
             jumped = True
+        if key[pygame.K_ESCAPE] and lvl_start:
+            if game_stop:
+                game_stop = False
+                pygame.mixer.music.unpause()
+            else:
+                game_stop = True
+                pygame.mixer.music.pause()
+                quit_ = draw_quit(screen)
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and game_stop:
+            camera.update(player)
+            for sprite in all_sprites:
+                camera.apply(sprite)
+            screen.blit(fon, (0, 0))
+            clicking_on_the_quit_label(event.pos, quit_)
     cloock.tick(tick)
     pygame.display.flip()
     if jumped:

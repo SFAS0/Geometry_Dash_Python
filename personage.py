@@ -27,7 +27,7 @@ class Personage(pygame.sprite.Sprite):
 
     def update(self, obj=[None, None], action=''):
         ans = "LIFE"
-        self.rect = self.rect.move(20, 0)
+        self.rect = self.rect.move(17, 0)
         if action == 'up' and pygame.sprite.spritecollideany(self, obj[0]):
             self.rect = self.rect.move(0, -100)
         elif not pygame.sprite.spritecollideany(self, obj[0]) and not jumped:
@@ -48,6 +48,11 @@ class Personage(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, obj[1]):
             ans = "DEAD"
         return ans
+
+    def can_jump(self, ground):
+        if pygame.sprite.spritecollideany(self, ground):
+            return True
+        return False
 
 
 class Objects(pygame.sprite.Sprite):
