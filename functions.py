@@ -4,6 +4,8 @@ import sys
 import pygame
 
 pygame.init()
+all_sprites = pygame.sprite.Group()
+jumped = False
 
 
 def load_level(filename):

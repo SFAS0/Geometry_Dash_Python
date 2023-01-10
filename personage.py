@@ -1,6 +1,6 @@
 import pygame
 
-from functions import load_image, all_sprites
+from functions import load_image, all_sprites, jumped
 
 
 class Personage(pygame.sprite.Sprite):
@@ -27,10 +27,10 @@ class Personage(pygame.sprite.Sprite):
 
     def update(self, obj=[None, None], action=''):
         ans = "LIFE"
-        self.rect = self.rect.move(15, 0)
+        self.rect = self.rect.move(20, 0)
         if action == 'up' and pygame.sprite.spritecollideany(self, obj[0]):
             self.rect = self.rect.move(0, -100)
-        elif not pygame.sprite.spritecollideany(self, obj[0]):
+        elif not pygame.sprite.spritecollideany(self, obj[0]) and not jumped:
             self.rect = self.rect.move(0, 11)
             self.cur_frame = (self.cur_frame + 1) % len(self.frames)
             self.image = self.frames[self.cur_frame]

@@ -1,6 +1,6 @@
 import pygame
 
-from functions import load_image, load_level, all_sprites
+from functions import load_image, load_level, all_sprites, jumped
 from personage import Personage, Objects
 
 
@@ -70,36 +70,23 @@ def generate_level(level):
 def draw_levels(screen):
     screen.fill((0, 0, 0))
     screen.blit(fon_levels, (0, 0))
-    font = pygame.font.Font(None, 50 + add_text)
-    text_easy = font.render("EASY", True, (100, 0, b))
-    text_easy_w = text_easy.get_width() + 20
-    text_easy_h = text_easy.get_height() + 20
-    text_easy_x = (width // 2 - text_easy.get_width() // 2) - 10
-    text_easy_y = (height // 2 - text_easy.get_height() // 2) + 30 - (text_easy_h * 2)
-    screen.blit(text_easy, (text_easy_x + 10, text_easy_y + 10))
-    pygame.draw.rect(screen, (100, 0, b), (text_easy_x, text_easy_y,
-                                           text_easy_w, text_easy_h), 3)
-    font = pygame.font.Font(None, 50 + add_text)
-    text_hard = font.render("HARD", True, (100, 0, b))
-    text_hard_w = text_hard.get_width() + 20
-    text_hard_h = text_hard.get_height() + 20
-    text_hard_x = (width // 2 - text_hard.get_width() // 2) - 10
-    text_hard_y = (height // 2 - text_hard.get_height() // 2) + (text_hard_h * 2) - 50
-    screen.blit(text_hard, (text_hard_x + 10, text_hard_y + 10))
-    pygame.draw.rect(screen, (100, 0, b), (text_hard_x, text_hard_y,
-                                           text_hard_w, text_hard_h), 3)
-    font = pygame.font.Font(None, 50 + add_text)
-    text_medium = font.render("MEDIUM", True, (100, 0, b))
-    text_medium_w = text_medium.get_width() + 20
-    text_medium_h = text_medium.get_height() + 20
-    text_medium_x = (width // 2 - text_medium.get_width() // 2) - 10
-    text_medium_y = (height // 2 - text_medium.get_height() // 2) - 10
-    screen.blit(text_medium, (text_medium_x + 10, text_medium_y + 10))
-    pygame.draw.rect(screen, (100, 0, b), (text_medium_x, text_medium_y,
-                                           text_medium_w, text_medium_h), 3)
-    location_labels_levels = [[text_easy_x, text_easy_y, text_easy_h, text_easy_w],
-                              [text_medium_x, text_medium_y, text_medium_h, text_medium_w],
-                              [text_hard_x, text_hard_y, text_hard_w, text_hard_w]]
+    location_labels_levels = []
+    for i in ["EASY", "HARD", "MEDIUM"]:
+        font = pygame.font.Font(None, 50 + add_text)
+        text = font.render(i, True, (100, 0, b))
+        text_w = text.get_width() + 20
+        text_h = text.get_height() + 20
+        text_x = (width // 2 - text.get_width() // 2) - 10
+        if i == 'EASY':
+            text_y = (height // 2 - text.get_height() // 2) + 30 - (text_h * 2)
+        elif i == 'HARD':
+            text_y = (height // 2 - text.get_height() // 2) + (text_h * 2) - 50
+        elif i == 'MEDIUM':
+            text_y = (height // 2 - text.get_height() // 2) - 10
+        screen.blit(text, (text_x + 10, text_y + 10))
+        pygame.draw.rect(screen, (100, 0, b), (text_x, text_y,
+                                               text_w, text_h), 3)
+        location_labels_levels.append([text_x, text_y, text_h, text_w])
     return location_labels_levels
 
 
@@ -163,6 +150,7 @@ def level_selection(pos=(0, 0), loc=((0, 0, 0, 0), (0, 0, 0, 0), (0, 0, 0, 0)), 
 
 
 running = True
+count = None
 label_level = ''
 lvl_start = False
 tick = 60
@@ -178,7 +166,7 @@ while running:
         ans = player.update((ground_sprites, obstacles_group))
         for group in sprites:
             group.draw(screen)
-        if ans == "DEAD":
+        if ans == "DEAD" and not jumped:
             for group in sprites:
                 group.empty()
             level_selection(run_lvl=running_level)
@@ -212,5 +200,11 @@ while running:
         key = pygame.key.get_pressed()
         if key[pygame.K_UP] and lvl_start:
             player.update((ground_sprites, obstacles_group), 'up')
+            count = 0
+            jumped = True
     cloock.tick(tick)
     pygame.display.flip()
+    if jumped:
+        count += 1
+    if count == 10:
+        jumped = False
