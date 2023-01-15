@@ -1,7 +1,9 @@
 import pygame
 import pygame.key
+import sqlite3
 
-from functions import load_image, load_level, all_sprites, jumped
+from functions import load_image, load_level, all_sprites, pers_sprites, ground_sprites, obstacles_group, point_group,\
+    finish_group
 from personage import Personage, Objects
 
 
@@ -68,6 +70,41 @@ def generate_level(level):
     return new_player, x, y
 
 
+def win(screen):
+    pygame.mixer.music.load(f'data/sounds/victory.mp3')
+    pygame.mixer.music.play(0, 1, 0)
+    screen.fill((0, 0, 0))
+    screen.blit(fon_start, (0, 0))
+    font = pygame.font.Font(None, 150 + add_text)
+    font_2 = pygame.font.Font(None, 70 + add_text)
+    texts = [font.render('YOU WON!!!', True, (100, 0, b)), font_2.render('Your score: ', True, (0, 255, 255))]
+    heights = [(height // 2 - texts[0].get_height() // 2) + 30 - (texts[0].get_height() * 2),
+               height // 2 - height // 8]
+    widths = [width // 2 - texts[0].get_width() // 2, width // 2 - width // 8]
+    for i in range(len(texts)):
+        screen.blit(texts[i], (widths[i], heights[i]))
+
+    font = pygame.font.Font(None, 50 + add_text)
+    text = font.render('Выйти', True, (50, 0, 255))
+    text_w = text.get_width() + 20
+    text_h = text.get_height() + 20
+    text_x = 50
+    text_y = height - 150
+    screen.blit(text, (text_x + 10, text_y + 10))
+    pygame.draw.rect(screen, (100, 0, 255), (text_x, text_y,
+                                             text_w, text_h), 3)
+    return text_w, text_h, text_x, text_y
+
+
+def quit_win(pos, label):
+    global game_end, game_stop, select_lavels
+    w, h, x, y = label
+    if x < pos[0] < x + w and y < pos[1] < y + h:
+        game_end = False
+        game_stop = False
+        select_lavels = True
+
+
 def draw_levels(screen):
     screen.fill((0, 0, 0))
     screen.blit(fon_levels, (0, 0))
@@ -123,12 +160,6 @@ def clicking_on_the_quit_label(pos, label):
         game_stop = False
 
 
-pers_sprites = pygame.sprite.Group()
-ground_sprites = pygame.sprite.Group()
-obstacles_group = pygame.sprite.Group()
-point_group = pygame.sprite.Group()
-finish_group = pygame.sprite.Group()
-
 step = 10
 color_step = 15
 
@@ -175,7 +206,7 @@ def level_selection(pos=(0, 0), loc=((0, 0, 0, 0), (0, 0, 0, 0), (0, 0, 0, 0)), 
 
 running = True
 game_stop = False
-count = None
+game_end = False
 label_level = ''
 lvl_start = False
 tick = 60
@@ -189,13 +220,21 @@ while running:
             for sprite in all_sprites:
                 camera.apply(sprite)
             screen.blit(fon, (0, 0))
-            ans = player.update((ground_sprites, obstacles_group))
+            player.update()
             for group in sprites:
                 group.draw(screen)
-            if ans == "DEAD" and not jumped:
+            if player.is_dead() == "DEAD":
                 for group in sprites:
                     group.empty()
                 level_selection(run_lvl=running_level)
+            if player.game_end():
+                game_stop = True
+                game_end = True
+                lvl_start = False
+                pygame.mixer.music.stop()
+                for group in sprites:
+                    group.empty()
+                button = win(screen)
         else:
             if add_text == 15:
                 step_text = -1
@@ -224,10 +263,8 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         key = pygame.key.get_pressed()
-        if key[pygame.K_UP] and lvl_start and not game_stop and player.can_jump(ground_sprites):
-            player.update((ground_sprites, obstacles_group), 'up')
-            count = 0
-            jumped = True
+        if key[pygame.K_UP] and lvl_start and not game_stop:
+            player.update(action='up')
         if key[pygame.K_ESCAPE] and lvl_start:
             if game_stop:
                 game_stop = False
@@ -236,15 +273,15 @@ while running:
                 game_stop = True
                 pygame.mixer.music.pause()
                 quit_ = draw_quit(screen)
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and game_stop:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and game_stop and not game_end:
             camera.update(player)
             for sprite in all_sprites:
                 camera.apply(sprite)
             screen.blit(fon, (0, 0))
             clicking_on_the_quit_label(event.pos, quit_)
+            for group in sprites:
+                group.empty()
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and game_stop and game_end:
+            quit_win(event.pos, button)
     cloock.tick(tick)
     pygame.display.flip()
-    if jumped:
-        count += 1
-    if count == 10:
-        jumped = False

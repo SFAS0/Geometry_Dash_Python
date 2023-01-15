@@ -4,8 +4,13 @@ import sys
 import pygame
 
 pygame.init()
+
 all_sprites = pygame.sprite.Group()
-jumped = False
+pers_sprites = pygame.sprite.Group()
+ground_sprites = pygame.sprite.Group()
+obstacles_group = pygame.sprite.Group()
+point_group = pygame.sprite.Group()
+finish_group = pygame.sprite.Group()
 
 
 def load_level(filename):

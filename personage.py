@@ -1,6 +1,6 @@
 import pygame
 
-from functions import load_image, all_sprites, jumped
+from functions import load_image, all_sprites, ground_sprites, obstacles_group, finish_group
 
 
 class Personage(pygame.sprite.Sprite):
@@ -15,6 +15,8 @@ class Personage(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = pos[0] * 50
         self.rect.y = pos[1] * 50
+        self.count = 0
+        self.jumped = False
 
     def cut_sheet(self, sheet, columns, rows):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
@@ -25,34 +27,41 @@ class Personage(pygame.sprite.Sprite):
                 self.frames.append(sheet.subsurface(pygame.Rect(
                     frame_location, self.rect.size)))
 
-    def update(self, obj=[None, None], action=''):
+    def is_dead(self):
         ans = "LIFE"
-        self.rect = self.rect.move(17, 0)
-        if action == 'up' and pygame.sprite.spritecollideany(self, obj[0]):
-            self.rect = self.rect.move(0, -100)
-        elif not pygame.sprite.spritecollideany(self, obj[0]) and not jumped:
-            self.rect = self.rect.move(0, 11)
-            self.cur_frame = (self.cur_frame + 1) % len(self.frames)
-            self.image = self.frames[self.cur_frame]
-        elif pygame.sprite.spritecollideany(self, obj[0]):
-            if self.cur_frame % 3 == 0:
-                self.image = self.frames[self.cur_frame]
-            else:
-                try:
-                    if (self.cur_frame + 1) % 3 == 0:
-                        self.image = self.frames[self.cur_frame + 1]
-                    else:
-                        self.image = self.frames[self.cur_frame + 2]
-                except IndexError:
-                    self.image = self.frames[0]
-        if pygame.sprite.spritecollideany(self, obj[1]):
+        if pygame.sprite.spritecollideany(self, obstacles_group) and not self.jumped:
             ans = "DEAD"
         return ans
 
-    def can_jump(self, ground):
-        if pygame.sprite.spritecollideany(self, ground):
-            return True
-        return False
+    def game_end(self):
+        return pygame.sprite.spritecollideany(self, finish_group)
+
+    def update(self, action=''):
+        if self.is_dead() == 'LIFE':
+            if self.jumped:
+                self.count += 1
+            if self.count == 10:
+                self.jumped = False
+            self.rect = self.rect.move(17, 0)
+            if action == 'up' and pygame.sprite.spritecollideany(self, ground_sprites):
+                self.rect = self.rect.move(0, -100)
+                self.jumped = True
+                self.count = 0
+            elif not pygame.sprite.spritecollideany(self, ground_sprites):
+                self.rect = self.rect.move(0, 11)
+                self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+                self.image = self.frames[self.cur_frame]
+            elif pygame.sprite.spritecollideany(self, ground_sprites):
+                if self.cur_frame % 3 == 0:
+                    self.image = self.frames[self.cur_frame]
+                else:
+                    try:
+                        if (self.cur_frame + 1) % 3 == 0:
+                            self.image = self.frames[self.cur_frame + 1]
+                        else:
+                            self.image = self.frames[self.cur_frame + 2]
+                    except IndexError:
+                        self.image = self.frames[0]
 
 
 class Objects(pygame.sprite.Sprite):
