@@ -213,6 +213,9 @@ cloock = pygame.time.Clock()
 sprites = [pers_sprites, ground_sprites, obstacles_group, point_group, finish_group]
 fon = pygame.transform.scale(load_image('data/fons/bg.png'), (width, height))
 
+pygame.mixer.music.load('data/sounds/come on lets go.mp3')
+pygame.mixer.music.play(0, 2.5, 0)
+
 con = sqlite3.connect('data/points.sqlite3')
 cur = con.cursor()
 while running:
